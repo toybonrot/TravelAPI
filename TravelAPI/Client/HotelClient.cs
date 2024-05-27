@@ -62,7 +62,6 @@ namespace TravelAPI.Clients
 
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
-            //Console.WriteLine(body);
 
             var result = JsonConvert.DeserializeObject<SearchHotel>(body);
             return result;

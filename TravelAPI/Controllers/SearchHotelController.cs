@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 using TravelAPI.Clients;
 using TravelAPI.DataBase;
 using TravelAPI.Models;
@@ -6,7 +7,6 @@ using TravelAPI.Models;
 namespace TravelAPI.Controllers
 {
     [ApiController]
-    [Route("Hotel Controller")]
     public class SearchHotelController : ControllerBase
     {
         private readonly ILogger<SearchHotelController> _logger;
@@ -16,28 +16,29 @@ namespace TravelAPI.Controllers
             _logger = logger;
         }
         [HttpGet]
-        public Hotel[] GetHotelInfo(string quary, string arrival, string departure)
+        [Route("Search Hotel Controller")]
+        public Hotel[] GetHotelInfo(string query, string arrival, string departure)
         {
             HotelClient hotelClient = new HotelClient();
-            SearchDestination destination = hotelClient.GetDestination(quary).Result;
+            SearchDestination destination = hotelClient.GetDestination(query).Result;
             SearchHotel hotel = hotelClient.GetHotel(destination.data[0].dest_id, arrival, departure).Result;
             HotelsBase temp = new HotelsBase();
             temp.InsertHotels(hotel);
             return hotel.data.hotels;
-        }
-    }
-    public class WishListHotel : ControllerBase
-    {
-        private readonly ILogger<WishListHotel> _logger;
-
-        public WishListHotel(ILogger<WishListHotel> logger)
+        }   
+        [HttpPost]
+        [Route("Add Hotel Controller")]
+        public BaseHotel AddHotel(int id)
         {
-            _logger = logger;
+            HotelsBase temp = new HotelsBase();
+            return temp.InsertIntoWishList(id).Result;
         }
-        //[HttpPost]
-        //public Hotel AddHotel()
-        //{
-        //    HotelClient hotelClient = new HotelClient();
-        //}
+        [HttpDelete]
+        [Route("Delete Hotel Controller")]
+        public Task DeleteHotel(int id)
+        {
+            HotelsBase temp = new HotelsBase();
+            return temp.DeleteFromWishList(id); 
+        }
     }
 }
