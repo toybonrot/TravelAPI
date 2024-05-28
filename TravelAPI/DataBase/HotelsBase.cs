@@ -39,6 +39,7 @@ namespace TravelAPI.DataBase
             await reader.ReadAsync();
             BaseHotel hotel = new BaseHotel() 
             {
+                User = user,
                 City = reader.GetString(1), 
                 Name = reader.GetString(2), 
                 Stars = reader.GetInt32(3), 
@@ -55,7 +56,7 @@ namespace TravelAPI.DataBase
                 " \"Hotel_Id\", \"Price\", \"Currency\", \"PhotoURL\") " +
              $"values (@User1, @City1, @Name1, @Stars1, @Score1, @Reviews1, @Hotel_Id1, @Price1, @Currency1, @PhotoURL1)";
             NpgsqlCommand cmd2 = new NpgsqlCommand(sql, con);
-            cmd2.Parameters.AddWithValue("User1", user);
+            cmd2.Parameters.AddWithValue("User1", hotel.User);
             cmd2.Parameters.AddWithValue("City1", hotel.City);
             cmd2.Parameters.AddWithValue("Name1", hotel.Name);
             cmd2.Parameters.AddWithValue("Stars1", hotel.Stars);
@@ -69,31 +70,36 @@ namespace TravelAPI.DataBase
             await con.CloseAsync();
             return hotel;
         }
-        public async Task<BaseHotel> GetFromWishList(string user)
+        public async Task<List<BaseHotel>> GetFromWishList(string user)
         {
-            var sql = $"SELECT * FROM public.\"HotelHistory2\" where \"User\" = '{user}'";
+            var sql = $"SELECT * FROM public.\"HotelList2\" where \"User\" = '{user}'";
             await con.OpenAsync();
             NpgsqlCommand cmd = new NpgsqlCommand(sql, con);
             NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
-            await reader.ReadAsync();
-            BaseHotel hotel = new BaseHotel()
+            List<BaseHotel> hotelsList = new List<BaseHotel>();
+            while (await reader.ReadAsync())
             {
-                City = reader.GetString(1),
-                Name = reader.GetString(2),
-                Stars = reader.GetInt32(3),
-                Score = reader.GetDouble(4),
-                Reviews = reader.GetInt32(5),
-                Hotel_id = reader.GetInt32(6),
-                Price = reader.GetDouble(7),
-                Currency = reader.GetString(8),
-                PhotoURL = reader.GetString(9)
-            };
+                BaseHotel hotel = new BaseHotel()
+                {
+                    User = reader.GetString(0),
+                    City = reader.GetString(1),
+                    Name = reader.GetString(2),
+                    Stars = reader.GetInt32(3),
+                    Score = reader.GetDouble(4),
+                    Reviews = reader.GetInt32(5),
+                    Hotel_id = reader.GetInt32(6),
+                    Price = reader.GetDouble(7),
+                    Currency = reader.GetString(8),
+                    PhotoURL = reader.GetString(9)
+                };
+                hotelsList.Add(hotel);
+            }         
             await con.CloseAsync();
-            return hotel;
+            return hotelsList;
         }
-        public async Task DeleteFromWishList(int query)
+        public async Task DeleteFromWishList(int query, string user)
         {
-            var sql = $"DELETE FROM \"WishList\" where \"Hotel_id\" = {query}";
+            var sql = $"DELETE FROM \"HotelList2\" where \"Hotel_Id\" = {query} and \"User\" = '{user}'";
             await con.OpenAsync();
             NpgsqlCommand cmd = new NpgsqlCommand(sql, con);
             await cmd.ExecuteNonQueryAsync();

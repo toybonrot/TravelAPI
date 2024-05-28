@@ -33,20 +33,19 @@ namespace TravelAPI.Controllers
             HotelsBase temp = new HotelsBase();
             return temp.InsertIntoWishList(id, user).Result;
         }
-        //[HttpGet]
-        //[Route("Add Hotel Controller")]
-        //public BaseHotel ReadHotel(string user)
-        //{
-        //    List<HotelsBase> temp = new List<HotelsBase>();
-        //    temp 2
-        //    return temp.GetFromWishList(user).Result;
-        //}
-        [HttpDelete]
-        [Route("Delete Hotel Controller")]
-        public Task DeleteHotel(int id)
+        [HttpGet]
+        [Route("Read Hotel List Controller")]
+        public List<BaseHotel> ReadHotel(string user)
         {
             HotelsBase temp = new HotelsBase();
-            return temp.DeleteFromWishList(id); 
+            return temp.GetFromWishList(user).Result;
+        }
+        [HttpDelete]
+        [Route("Delete Hotel Controller")]
+        public Task DeleteHotel(int id, string user)
+        {
+            HotelsBase temp = new HotelsBase();
+            return temp.DeleteFromWishList(id, user); 
         }
     }
 }
