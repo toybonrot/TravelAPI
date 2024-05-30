@@ -17,15 +17,29 @@ namespace TravelAPI.Controllers
         }
         [HttpGet]
         [Route("Search Hotel Controller")]
-        public SearchHotel GetHotelInfo(string query, string arrival, string departure, string user)
+        public SearchHotel GetHotelInfo(string query, string arrival, string departure, string user, string filters, double priceMax, int pageNum)
         {
             HotelClient hotelClient = new HotelClient();
             SearchDestination destination = hotelClient.GetDestination(query).Result;
-            SearchHotel hotel = hotelClient.GetHotel(destination.data[0].dest_id, arrival, departure).Result;
+            SearchHotel hotel = hotelClient.GetHotel(destination.data[0].dest_id, arrival, departure, filters, priceMax, pageNum).Result;
             HotelsBase temp = new HotelsBase();
             temp.InsertHotels(hotel, query, user);
             return hotel;
-        }   
+        }
+        [HttpGet]
+        [Route("Read Available Filters Controller")]
+        public List<string> ReadFilters()
+        {
+            HotelsBase temp = new HotelsBase();
+            return temp.GetAvailableFilters().Result;
+        }
+        [HttpGet]
+        [Route("Get Filter Controller")]
+        public string GetFilter(string filter)
+        {
+            HotelsBase temp = new HotelsBase();
+            return temp.GetFilterId(filter).Result;
+        }
         [HttpPost]
         [Route("Add Hotel Controller")]
         public BaseHotel AddHotel(int id, string user)

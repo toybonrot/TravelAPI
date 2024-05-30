@@ -105,5 +105,35 @@ namespace TravelAPI.DataBase
             await cmd.ExecuteNonQueryAsync();
             await con.CloseAsync();
         }
+        public async Task<List<string>> GetAvailableFilters()
+        {
+            var sql = $"SELECT * FROM \"Filters\"";
+            await con.OpenAsync();
+            NpgsqlCommand cmd = new NpgsqlCommand(sql, con);
+            NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
+            List<string> filters = new List<string>();
+            while (await reader.ReadAsync())
+            {
+                filters.Add(reader.GetString(1));
+            }
+            await con.CloseAsync();
+            return filters;
+        }
+        public async Task<string> GetFilterId(string filter)
+        {
+            var sql = $"SELECT * FROM public.\"Filters\" where \"FilterName\" = '{filter}'";
+            await con.OpenAsync();
+            NpgsqlCommand cmd = new NpgsqlCommand(sql, con);
+            NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
+            await reader.ReadAsync();
+            if (reader.HasRows)
+            {
+                string filterId = reader.GetString(2);
+                await con.CloseAsync();
+                return filterId;
+            }
+            return "Фільтр не існує";
+        }
     }
+
 }

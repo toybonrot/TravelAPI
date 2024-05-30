@@ -45,13 +45,21 @@ namespace TravelAPI.Clients
             var result = JsonConvert.DeserializeObject<SearchDestination>(body);
             return result;
         }
-        public async Task<SearchHotel> GetHotel(string id, string arrival, string departure)
+        public async Task<SearchHotel> GetHotel(string id, string arrival, string departure, string filters, double priceMax, int pageNum)
         {
+            string url = _address + $"/hotels/searchHotels?dest_id={id}&search_type=CITY&" +
+                $"arrival_date={arrival}&departure_date={departure}&adults=1&children_age=1&room_qty=1&page_number={pageNum}&" +
+                $"price_max={priceMax}&";
+            if (filters != "none")
+            {
+                url += $"categories_filter={filters}&";
+            }
+            url += "languagecode=uk&currency_code=UAH";
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(_address + $"/hotels/searchHotels?dest_id={id}&search_type=CITY&arrival_date={arrival}&departure_date={departure}&adults=1&children_age=0%2C17&room_qty=1&page_number=1&languagecode=en-us&currency_code=UAH"),
+                RequestUri = new Uri(url),
                 Headers =
     {
         { "X-RapidAPI-Key", _apikey },
