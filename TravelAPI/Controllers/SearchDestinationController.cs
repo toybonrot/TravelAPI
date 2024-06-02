@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TravelAPI.Clients;
+using TravelAPI.Client;
 using TravelAPI.Models;
 
 namespace TravelAPI.Controllers

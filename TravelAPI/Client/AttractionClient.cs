@@ -11,25 +11,26 @@ using Newtonsoft.Json;
 
 namespace TravelAPI.Client
 {
-    public class HotelClient
+    public class AttractionClient
     {
         private static string _address;
         private static string _apikey;
         private static string _apihost;
 
-        public HotelClient()
+        public AttractionClient()
         {
             _address = Constants.Address;
             _apikey = Constants.ApiKey;
             _apihost = Constants.ApiHost;
         }
-        public async Task<SearchDestination> GetDestination(string quary)
+        public async Task<AttractionDestination> AttractionGetDest(string quary)
         {
+
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(_address + $"/hotels/searchDestination?query={quary}"),
+                RequestUri = new Uri(_address + $"/attraction/searchLocation?query={quary}&languagecode=uk"),
                 Headers =
     {
         { "X-RapidAPI-Key", _apikey },
@@ -37,25 +38,20 @@ namespace TravelAPI.Client
     },
             };
             var response = await client.SendAsync(request);
-
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
-            //Console.WriteLine(body);
-
-            var result = JsonConvert.DeserializeObject<SearchDestination>(body);
+            var result = JsonConvert.DeserializeObject<AttractionDestination>(body);
             return result;
         }
-        public async Task<SearchHotel> GetHotel(string id, string arrival, string departure, string filters, double priceMax, int pageNum, string currency)
+        public async Task<SearchAttraction> GetAttractions(string id, string arrival, string departure, string currency)
         {
-            string url = _address + $"/hotels/searchHotels?dest_id={id}&search_type=CITY&" +
-                $"arrival_date={arrival}&departure_date={departure}&adults=1&children_age=1&room_qty=1&page_number={pageNum}&" +
-                $"price_max={priceMax}&";
-            if (filters != "none")
-            {
-                url += $"categories_filter={filters}&";
-            }
-            url += $"languagecode=uk&currency_code={currency}";
             var client = new HttpClient();
+            string url = _address + $"/attraction/searchAttractions?id={id}&";
+            if (arrival != "none" && departure != "none")
+            {
+                url += $"startDate={arrival}&endDate={departure}&";
+            }
+            url += $"currency_code={currency}&languagecode=uk";
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
@@ -67,20 +63,18 @@ namespace TravelAPI.Client
     },
             };
             var response = await client.SendAsync(request);
-
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
-
-            var result = JsonConvert.DeserializeObject<SearchHotel>(body);
+            var result = JsonConvert.DeserializeObject<SearchAttraction>(body);
             return result;
         }
-        public async Task<HotelInfo> GetMoreHotelDetail(int id, string arrival, string departure, string currency)
+        public async Task<AttractionDetails> GetAttractionDetails(string slug, string currency)
         {
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(_address + $"/hotels/getHotelDetails?hotel_id={id}&arrival_date={arrival}&departure_date={departure}&adults=1&room_qty=1&languagecode=uk&currency_code={currency}"),
+                RequestUri = new Uri(_address + $"/attraction/getAttractionDetails?slug={slug}&languagecode=uk&currency_code={currency}"),
                 Headers =
     {
         { "X-RapidAPI-Key", _apikey },
@@ -90,11 +84,8 @@ namespace TravelAPI.Client
             var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
-
-            var result = JsonConvert.DeserializeObject<HotelInfo>(body);
+            var result = JsonConvert.DeserializeObject<AttractionDetails>(body);
             return result;
         }
-
     }
-
 }
